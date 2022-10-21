@@ -38,18 +38,35 @@ function Article(props) {
 </article>
 }
 
+function Create(props) {
+  return <article>
+  <h2>Create</h2>
+  <form onSubmit={event => {
+    event.preventDefault();
+    const title = event.target.title.value;
+    const body = event.target.body.value;
+    props.onCreate(title, body);
+  }}>
+    <p><input type="text" name="title" placeholder="title"/></p>
+    <p><textarea name="body" placeholder="body"></textarea></p>
+    <p><input type="submit" value="Create"></input></p>
+    </form>
+</article>
+}
+
 function App() {
   // const _mode = useState('WELCOME');  //배열 구조, 0번째는 초기 state(WELCOME), 1번째는 state를 변경하기 위한 함수
   // const mode = _mode[0];
   // const setMode = _mode[1];
   const [mode, setMode] = useState('WELCOME');
   const [id, setId] = useState(null);
+  const[nextId, setNextId] = useState(4);
   
-  const topics = [
+  const [topics, setTopics] = useState([
     {id:1, title:'html', body:'html is ...'},
     {id:2, title:'css', body:'css is ...'},
     {id:3, title:'javascript', body:'javascript is ...'},
-  ]
+  ]);
   let content = null;
   if(mode ==='WELCOME') {
     content = <Article title="Welcome" body="Hello, WEB"></Article>;
@@ -63,7 +80,18 @@ function App() {
       }
     }
     content = <Article title={title} body={body}></Article>;
+  } else if(mode === 'CREATE') {
+    content = <Create onCreate={(_title, _body) => {
+      const newTopic = {id:nextId, title:_title, body:_body}
+      const newTopics = [...topics];
+      newTopics.push(newTopic);
+      setTopics(newTopics);
+      setMode('READ');
+      setId(nextId);
+      setNextId(nextId + 1);
+    }}></Create>
   }
+
   return (
     <div className="App">
       <Header title="WEB" onChangeMode={() => {
@@ -74,6 +102,10 @@ function App() {
         setId(_id);
       }}></Nav>
       {content}
+      <a href ="/create" onClick={event => {
+        event.preventDefault();
+        setMode('CREATE');
+      }}>Create</a>
     </div>
   );
 }
